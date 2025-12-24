@@ -3,7 +3,7 @@ import { ShortcutStory } from '../types';
 
 export class ShortcutService {
   private apiToken: string;
-  private baseUrl = '/api/shortcut';
+  private baseUrl = (import.meta as any).env?.DEV ? '/api/shortcut' : 'https://api.app.shortcut.com/api/v3';
 
   constructor(apiToken: string) {
     this.apiToken = apiToken;
