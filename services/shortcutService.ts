@@ -3,35 +3,36 @@ import { ShortcutStory } from '../types';
 
 export class ShortcutService {
   private apiToken: string;
-  private isDev = (import.meta as any).env?.DEV;
   private baseUrl = 'https://api.app.shortcut.com/api/v3';
-  private proxyUrl = 'https://cors-proxy-share-8l700t4na-joses-projects-a938d298.vercel.app/';
+  private proxyUrl = 'https://cors-proxy-share-delta.vercel.app/api';
 
   constructor(apiToken: string) {
     this.apiToken = apiToken;
   }
 
   private async customFetch(url: string, options: RequestInit = {}): Promise<Response> {
+    console.log(`[ShortcutService] Proxying request to: ${url} (Method: ${options.method || 'GET'})`);
+
     const headers = {
       ...options.headers,
       'Shortcut-Token': this.apiToken,
       'Content-Type': 'application/json'
     };
 
-    if (this.isDev) {
-      // En desarrollo usamos el proxy local configurado en vite.config.ts
-      const devUrl = url.replace(this.baseUrl, '/api/shortcut');
-      return fetch(devUrl, { ...options, headers });
-    } else {
-      // En producción usamos el proxy de Vercel (cors-proxy-share)
-      // Este proxy requiere la URL real en el header 'my-url'
-      return fetch(this.proxyUrl, {
+    try {
+      const response = await fetch(this.proxyUrl, {
         ...options,
         headers: {
           ...headers,
           'my-url': url
         }
       });
+
+      console.log(`[ShortcutService] Proxy response status: ${response.status} (${url})`);
+      return response;
+    } catch (error) {
+      console.error('[ShortcutService] Proxy fetch error:', error);
+      throw error;
     }
   }
 

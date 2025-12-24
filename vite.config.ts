@@ -12,13 +12,6 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
       host: '0.0.0.0',
-      proxy: {
-        '/api/shortcut': {
-          target: 'https://api.app.shortcut.com/api/v3',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/shortcut/, ''),
-        },
-      },
     },
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY || env.VITE_GEMINI_API_KEY || ""),
