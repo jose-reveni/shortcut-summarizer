@@ -1,0 +1,5 @@
+{
+  "name": "Shortcut AI Changelog Generator",
+  "description": "A powerful tool to fetch completed stories from Shortcut (formerly Clubhouse) and transform them into a professional product changelog using Gemini AI.",
+  "requestFramePermissions": []
+}
