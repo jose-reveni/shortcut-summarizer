@@ -1,12 +1,58 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/aspect-ratio";
 
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: #f8fafc;
+@theme {
+  --font-sans: "Inter", "sans-serif";
+  --color-indigo-50: oklch(0.962 0.018 272.31);
+  --color-indigo-100: oklch(0.93 0.034 272.78);
+  --color-indigo-200: oklch(0.87 0.065 274.04);
+  --color-indigo-300: oklch(0.785 0.115 274.71);
+  --color-indigo-400: oklch(0.673 0.182 276.93);
+  --color-indigo-500: oklch(0.585 0.233 277.11);
+  --color-indigo-600: oklch(0.511 0.262 276.97);
+  --color-indigo-700: oklch(0.435 0.236 276.1);
+  --color-indigo-800: oklch(0.368 0.198 274.61);
+  --color-indigo-900: oklch(0.321 0.166 273.73);
+  --color-indigo-950: oklch(0.207 0.093 273.47);
 }
 
-.dark body {
-  background-color: #0f172a;
+@layer base {
+  body {
+    @apply antialiased text-gray-900 dark:text-slate-200 transition-colors duration-300;
+    font-family: var(--font-sans);
+    background-color: #f8fafc;
+  }
+
+  .dark body {
+    background-color: #0f172a;
+  }
+}
+
+/* Custom scrollbar for better look */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gray-200 dark:bg-slate-700 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-300 dark:bg-slate-600;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
