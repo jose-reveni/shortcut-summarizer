@@ -3,22 +3,43 @@ import { ShortcutStory } from '../types';
 
 export class ShortcutService {
   private apiToken: string;
-  private baseUrl = (import.meta as any).env?.DEV ? '/api/shortcut' : 'https://api.app.shortcut.com/api/v3';
+  private isDev = (import.meta as any).env?.DEV;
+  private baseUrl = 'https://api.app.shortcut.com/api/v3';
+  private proxyUrl = 'https://cors-proxy-share-8l700t4na-joses-projects-a938d298.vercel.app/';
 
   constructor(apiToken: string) {
     this.apiToken = apiToken;
+  }
+
+  private async customFetch(url: string, options: RequestInit = {}): Promise<Response> {
+    const headers = {
+      ...options.headers,
+      'Shortcut-Token': this.apiToken,
+      'Content-Type': 'application/json'
+    };
+
+    if (this.isDev) {
+      // En desarrollo usamos el proxy local configurado en vite.config.ts
+      const devUrl = url.replace(this.baseUrl, '/api/shortcut');
+      return fetch(devUrl, { ...options, headers });
+    } else {
+      // En producción usamos el proxy de Vercel (cors-proxy-share)
+      // Este proxy requiere la URL real en el header 'my-url'
+      return fetch(this.proxyUrl, {
+        ...options,
+        headers: {
+          ...headers,
+          'my-url': url
+        }
+      });
+    }
   }
 
   private async getGroups(): Promise<Record<string, string>> {
     const targetUrl = `${this.baseUrl}/groups`;
 
     try {
-      const response = await fetch(targetUrl, {
-        headers: {
-          'Shortcut-Token': this.apiToken,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await this.customFetch(targetUrl);
       if (!response.ok) return {};
 
       const groups = await response.json();
@@ -36,12 +57,7 @@ export class ShortcutService {
     const targetUrl = `${this.baseUrl}/epics`;
 
     try {
-      const response = await fetch(targetUrl, {
-        headers: {
-          'Shortcut-Token': this.apiToken,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await this.customFetch(targetUrl);
       if (!response.ok) return {};
 
       const epics = await response.json();
@@ -59,12 +75,7 @@ export class ShortcutService {
     const targetUrl = `${this.baseUrl}/members`; // Shortcut llama 'members' a los usuarios
 
     try {
-      const response = await fetch(targetUrl, {
-        headers: {
-          'Shortcut-Token': this.apiToken,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await this.customFetch(targetUrl);
       if (!response.ok) return {};
 
       const members = await response.json();
@@ -94,9 +105,7 @@ export class ShortcutService {
       if (epic_id) {
         if (!this.epicStoriesCache[epic_id]) {
           console.log(`[ShortcutService] Cargando historias para épica ${epic_id}...`);
-          const response = await fetch(`${this.baseUrl}/epics/${epic_id}/stories`, {
-            headers: { 'Shortcut-Token': this.apiToken, 'Content-Type': 'application/json' }
-          });
+          const response = await this.customFetch(`${this.baseUrl}/epics/${epic_id}/stories`);
           if (response.ok) {
             this.epicStoriesCache[epic_id] = await response.json();
           }
@@ -105,9 +114,7 @@ export class ShortcutService {
       } else if (iteration_id) {
         if (!this.iterationStoriesCache[iteration_id]) {
           console.log(`[ShortcutService] Cargando historias para iteración ${iteration_id}...`);
-          const response = await fetch(`${this.baseUrl}/iterations/${iteration_id}/stories`, {
-            headers: { 'Shortcut-Token': this.apiToken, 'Content-Type': 'application/json' }
-          });
+          const response = await this.customFetch(`${this.baseUrl}/iterations/${iteration_id}/stories`);
           if (response.ok) {
             this.iterationStoriesCache[iteration_id] = await response.json();
           }
@@ -153,12 +160,8 @@ export class ShortcutService {
         this.getGroups(),
         this.getEpics(),
         this.getUsers(),
-        fetch(targetUrl, {
+        this.customFetch(targetUrl, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Shortcut-Token': this.apiToken,
-          },
           body: JSON.stringify({
             completed_at_start: startDate,
             completed_at_end: endDate,
