@@ -1,8 +1,8 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { ShortcutStory } from '../types';
+import { ShortcutStory, WeekRange } from '../types';
 
-export async function generateChangelog(stories: ShortcutStory[], apiKey: string): Promise<string> {
+export async function generateChangelog(stories: ShortcutStory[], apiKey: string, dateRange: WeekRange): Promise<string> {
   if (!apiKey) {
     throw new Error("Missing Gemini API Key");
   }
@@ -46,7 +46,7 @@ Instrucciones de formato:
 3. Traduce términos técnicos a beneficios para el usuario.
 4. Usa Markdown elegante.
 5. Si hay tareas "General" o "Sin Equipo", agrúpalas al final.
-6. Comienza con un párrafo breve de "Resumen de la Semana" que destaque el impacto global.`;
+6. Comienza con un párrafo breve de "Resumen de la Semana (${dateRange.label})" que destaque el impacto global e incluya las fechas del periodo mencionadas anteriormente.`;
 
   try {
     const result = await model.generateContent(prompt);

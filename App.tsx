@@ -107,7 +107,7 @@ const App: React.FC = () => {
       setLoadingState(LoadingState.GENERATING_CHANGELOG);
       setProgressMessage('Gemini está analizando los datos...');
 
-      const generatedContent = await generateChangelog(fetchedStories, config.geminiApiKey);
+      const generatedContent = await generateChangelog(fetchedStories, config.geminiApiKey, selectedWeek);
 
       setChangelog(generatedContent);
       setLoadingState(LoadingState.IDLE);
