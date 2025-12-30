@@ -7,6 +7,7 @@ import { configService, AppConfig } from './services/configService';
 import { Settings } from './components/Settings';
 import { StoryList } from './components/StoryList';
 import { SetupModal } from './components/SetupModal';
+import ReactMarkdown from 'react-markdown';
 
 const App: React.FC = () => {
   const [config, setConfig] = useState<AppConfig>(configService.getConfig());
@@ -267,10 +268,10 @@ const App: React.FC = () => {
                   <p className="text-sm font-bold text-gray-800 dark:text-slate-200">{progressMessage}</p>
                 </div>
               ) : changelog ? (
-                <div className="prose prose-indigo dark:prose-invert max-w-none">
-                  <div className="whitespace-pre-wrap text-gray-700 dark:text-slate-300 font-sans leading-relaxed">
+                <div className="prose prose-indigo dark:prose-invert max-w-none text-gray-700 dark:text-slate-300 font-sans leading-relaxed">
+                  <ReactMarkdown>
                     {changelog}
-                  </div>
+                  </ReactMarkdown>
                 </div>
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
