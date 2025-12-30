@@ -8,6 +8,7 @@ import { Settings } from './components/Settings';
 import { StoryList } from './components/StoryList';
 import { SetupModal } from './components/SetupModal';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const App: React.FC = () => {
   const [config, setConfig] = useState<AppConfig>(configService.getConfig());
@@ -18,6 +19,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isSetupOpen, setIsSetupOpen] = useState<boolean>(!configService.isConfigured());
+  const [copied, setCopied] = useState<boolean>(false);
 
   // Update setup modal visibility when config changes externally (e.g. from settings)
   useEffect(() => {
@@ -251,10 +253,24 @@ const App: React.FC = () => {
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(changelog);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
                   }}
-                  className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 flex items-center gap-1 transition-all bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1.5 rounded-lg"
+                  className={`text-xs font-bold flex items-center gap-1 transition-all px-3 py-1.5 rounded-lg ${copied
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                      : 'text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/20'
+                    }`}
                 >
-                  Copiar Markdown
+                  {copied ? (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                      </svg>
+                      ¡Copiado!
+                    </>
+                  ) : (
+                    'Copiar Markdown'
+                  )}
                 </button>
               )}
             </div>
@@ -269,7 +285,7 @@ const App: React.FC = () => {
                 </div>
               ) : changelog ? (
                 <div className="prose prose-indigo dark:prose-invert max-w-none text-gray-700 dark:text-slate-300 font-sans leading-relaxed">
-                  <ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {changelog}
                   </ReactMarkdown>
                 </div>
